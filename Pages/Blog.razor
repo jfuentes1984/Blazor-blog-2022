@@ -15,6 +15,7 @@
         <h4>@entry.Title</h4>
         <div class="blog-entry-content">@((MarkupString)entry.Content)</div>
         <h5>@entry.TimePosted</h5>
+        <button @onclick="() =>DeleteAsync(entry)">Delete</button>
     </article>
 }
 
@@ -72,7 +73,16 @@
                 }
             }
 
-
+        }
+    }
+    private async void DeleteAsync(BlogEntry entry)
+    {
+        using var ctx = await CtxFactory.CreateDbContextAsync();
+        if (ctx.Blog != null)
+        {
+            ctx.Blog.Remove(entry);
+            await ctx.SaveChangesAsync();
+            await updateBlogEntriesAsync();
         }
     }
 }
