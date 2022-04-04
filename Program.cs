@@ -1,8 +1,14 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Blazor_blog_2022.Data;
+using Blazor_blog_2022.Model;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContextFactory<BlogContext>(
+    opt => opt.UseLazyLoadingProxies().UseSqlite(builder.Configuration.GetConnectionString("Blog"))
+);
 
 // Add services to the container.
 builder.Services.AddRazorPages();

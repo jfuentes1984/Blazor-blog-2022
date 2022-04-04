@@ -1,0 +1,11 @@
+.blog-entry {
+    border: 2px rgb(166, 99, 166) outset;
+    background-color: rgb(199, 178, 219);
+    margin: 1.5vh 1vw;
+}
+
+h5 {
+    color: aquamarine;
+    font-size: smaller;
+    margin: 1.5vh .2vw;
+}

@@ -1,5 +1,78 @@
-﻿<h3>Blog</h3>
+﻿@page "/blog"
+@using Model
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<BlogContext> CtxFactory
+
+<PageTitle>Blog</PageTitle>
+
+<h3>Blog</h3>
+
+
+
+@foreach (var entry in blog)
+{
+    <article class="blog-entry">
+        <h4>@entry.Title</h4>
+        <div class="blog-entry-content">@((MarkupString)entry.Content)</div>
+        <h5>@entry.TimePosted</h5>
+    </article>
+}
+
+<input type="text" placeholder="Title" @bind="title" />
+<input type="text" placeholder="Content" @bind="content" />
+<button @onclick="AddEntryAsync">Add Entry</button>
+
 
 @code {
 
+    private List<BlogEntry> blog = new List<BlogEntry>();
+
+    private string? title, content;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var ctx = await CtxFactory.CreateDbContextAsync();
+        if (ctx.Blog != null)
+        {
+            blog.AddRange(await ctx.Blog.OrderByDescending(be => be.TimePosted).ToListAsync()
+            );
+        }
+        var be = new BlogEntry
+        {
+            Title = "My first blog entry",
+            Content = "Welcome to the jungle",
+            TimePosted = DateTime.Now
+        };
+        blog.Add(be);
+    }
+
+    public async Task updateBlogEntriesAsync()
+    {
+        blog.Clear();
+        using var ctx = await CtxFactory.CreateDbContextAsync();
+    }
+
+    private async void AddEntryAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(content))
+        {
+            var be = new BlogEntry { Title = title, Content = content, TimePosted = DateTime.Now };
+
+            using var ctx = await CtxFactory.CreateDbContextAsync();
+
+            if (ctx.Blog != null)
+            {
+                await ctx.Blog.AddAsync(be);
+                if (await ctx.SaveChangesAsync() > 0)
+                {
+                    await updateBlogEntriesAsync();
+                    blog.Insert(0, be);
+                    title = "";
+                    content = string.Empty;
+                }
+            }
+
+
+        }
+    }
 }
